@@ -1,9 +1,9 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import { Context } from "../Context";
 
 export const TodoItem = ({ id, title, completed }) => {
   //   const [checked, setChecked] = useState(false);
-  const [removeTodo, toggleTodo] = useContext(Context);
+  const { dispatch } = useContext(Context);
   let cls = "info";
 
   if (completed) {
@@ -17,11 +17,25 @@ export const TodoItem = ({ id, title, completed }) => {
           className="checkbox"
           type="checkbox"
           checked={completed}
-          onChange={() => toggleTodo(id)}
+          onChange={() =>
+            dispatch({
+              type: "toggle",
+              payload: id,
+            })
+          }
         />
         <span>{title}</span>
       </div>
-      <i onClick={() => removeTodo(id)}>&times;</i>
+      <i
+        onClick={() =>
+          dispatch({
+            type: "remove",
+            payload: id,
+          })
+        }
+      >
+        &times;
+      </i>
     </li>
   );
 };

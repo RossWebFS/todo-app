@@ -1,47 +1,44 @@
 import { TodoList } from "./components/TodoList";
 import { Context } from "./Context";
-
-import { useState, useEffect } from "react";
+import todoReducer from "./Reducer";
+import { useState, useEffect, useReducer } from "react";
 
 function App() {
-  const [todos, setTodos] = useState([]);
   const [todoTitle, setTodoTitle] = useState("");
 
+  const [state, dispatch] = useReducer(
+    todoReducer,
+    JSON.parse(localStorage.getItem("todos"))
+  );
+
   useEffect(() => {
-    setTodos(JSON.parse(localStorage.getItem("todos")) || "[]");
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    localStorage.setItem("todos", JSON.stringify(state));
+  }, [state]);
 
   const addTodo = (event) => {
     if (event.key === "Enter") {
-      setTodos([
-        ...todos,
-        {
-          id: new Date(),
-          title: todoTitle,
-          completed: false,
-        },
-      ]);
+      dispatch({
+        type: "add",
+        payload: todoTitle,
+      });
       setTodoTitle("");
     }
   };
 
-  const removeTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-  const toggleTodo = (id) => {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === id) todo.completed = !todo.completed;
-        return todo;
-      })
-    );
-  };
+  // const removeTodo = (id) => {
+  //   setTodos(todos.filter((todo) => todo.id !== id));
+  // };
+  // const toggleTodo = (id) => {
+  //   setTodos(
+  //     todos.map((todo) => {
+  //       if (todo.id === id) todo.completed = !todo.completed;
+  //       return todo;
+  //     })
+  //   );
+  // };
 
   return (
-    <Context.Provider value={[removeTodo, toggleTodo]}>
+    <Context.Provider value={{ dispatch }}>
       <div className="todos-container">
         <header>
           <h1>Todo App</h1>
@@ -55,7 +52,7 @@ function App() {
             onKeyDown={addTodo}
           />
         </div>
-        <TodoList todos={todos} />
+        <TodoList todos={state} />
       </div>
     </Context.Provider>
   );
